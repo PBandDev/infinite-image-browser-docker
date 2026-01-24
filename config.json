@@ -1,0 +1,5 @@
+{
+  "outdir_txt2img_samples": "/outputs",
+  "outdir_img2img_samples": "/outputs",
+  "outdir_extras_samples": "/outputs"
+}

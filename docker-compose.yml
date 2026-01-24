@@ -1,0 +1,16 @@
+services:
+  iib:
+    build: .
+    container_name: infinite-image-browser
+    ports:
+      - "8080:8080"
+    volumes:
+      - C:\Users\ReesePC\comfy\ComfyUI\output:/outputs:ro
+      - iib-cache:/cache
+    environment:
+      - PORT=8080
+      - EXTRA_PATHS=/outputs
+    restart: unless-stopped
+
+volumes:
+  iib-cache:
