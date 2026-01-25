@@ -7,7 +7,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
   UPSTREAM_REPO: zanllp/sd-webui-infinite-image-browsing
 
 jobs:
@@ -18,6 +17,10 @@ jobs:
       packages: write
 
     steps:
+      - name: Set image name lowercase
+        id: image
+        run: echo "name=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
       - name: Get latest upstream release
         id: upstream
         run: |
@@ -29,7 +32,7 @@ jobs:
         id: check
         run: |
           TAG="${{ steps.upstream.outputs.version }}"
-          if docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$TAG > /dev/null 2>&1; then
+          if docker manifest inspect ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:$TAG > /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "Tag $TAG already exists"
           else
@@ -66,6 +69,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.upstream.outputs.version }}
+            ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ steps.upstream.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
