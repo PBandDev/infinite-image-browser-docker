@@ -14,6 +14,18 @@ docker run -d \
 
 Open http://localhost:8080
 
+## Image Tags
+
+| Tag | Description | Update Frequency |
+|-----|-------------|------------------|
+| `latest` | Follows upstream `main` branch | Weekly (Sundays) |
+| `vX.X.X` | Pinned to upstream release version | On new release |
+
+Use a version tag for stability:
+```bash
+docker pull ghcr.io/pbanddev/infinite-image-browser-docker:v1.2.3
+```
+
 ## Docker Compose
 
 ```yaml
@@ -25,6 +37,7 @@ services:
     volumes:
       - /path/to/images:/outputs:ro
       - iib-cache:/cache
+    restart: unless-stopped
 
 volumes:
   iib-cache:

@@ -5,7 +5,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - C:\Users\ReesePC\comfy\ComfyUI\output:/outputs:ro
+      - ./images:/outputs:ro  # Change to your images folder
       - iib-cache:/cache
     environment:
       - PORT=8080
