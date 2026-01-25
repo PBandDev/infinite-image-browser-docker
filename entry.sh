@@ -3,25 +3,23 @@ set -e
 
 cd /app
 
-# Patch default_host to bind to all interfaces
 sed -i 's/default_host = ".*"/default_host = "0.0.0.0"/' app.py
 
-# Set defaults
-PORT="${PORT:-8080}"
-EXTRA_PATHS="${EXTRA_PATHS:-/outputs}"
+# Docker defaults (user can override via -e)
+export PORT="${PORT:-8080}"
+export EXTRA_PATHS="${EXTRA_PATHS:-/outputs}"
+export IIB_CACHE_DIR="${IIB_CACHE_DIR:-/cache}"
+export IIB_DB_PATH="${IIB_DB_PATH:-${IIB_CACHE_DIR}/iib.db}"
+export IIB_ACCESS_CONTROL="${IIB_ACCESS_CONTROL:-enable}"
+export IIB_DB_FILE_BACKUP_MAX="${IIB_DB_FILE_BACKUP_MAX:-0}"
 
 echo "=== Infinite Image Browsing ==="
 echo "PORT: $PORT"
 echo "EXTRA_PATHS: $EXTRA_PATHS"
+echo "IIB_DB_PATH: $IIB_DB_PATH"
+echo "IIB_CACHE_DIR: $IIB_CACHE_DIR"
 echo "EXTRA_OPTIONS: $EXTRA_OPTIONS"
 echo "==============================="
-
-# Configure environment
-cat > .env << EOF
-IIB_ACCESS_CONTROL=enable
-IIB_DB_FILE_BACKUP_MAX=0
-IIB_CACHE_DIR=/cache
-EOF
 
 exec python app.py \
     --port="$PORT" \

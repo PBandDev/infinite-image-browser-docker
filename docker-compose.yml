@@ -10,6 +10,10 @@ services:
     environment:
       - PORT=8080
       - EXTRA_PATHS=/outputs
+      # All env vars pass through to IIB. Examples:
+      # - IIB_DB_PATH=/cache/iib.db
+      # - IIB_SECRET_KEY=your-secret
+      # - OPENAI_API_KEY=sk-...
     restart: unless-stopped
 
 volumes:
