@@ -7,6 +7,8 @@ services:
     volumes:
       - ./images:/outputs:ro  # Change to your images folder
       - iib-cache:/cache
+      # Custom favicon (optional): mount your own favicon.svg
+      # - ./my-favicon.svg:/app/custom/favicon.svg:ro
     environment:
       - PORT=8080
       - EXTRA_PATHS=/outputs
