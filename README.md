@@ -84,6 +84,37 @@ docker run -d \
   ghcr.io/pbanddev/infinite-image-browser-docker:latest
 ```
 
+## Custom Favicon
+
+The container includes a default favicon. To use your own custom favicon, mount an SVG file to `/app/custom/favicon.svg`:
+
+### Docker Run
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -v /path/to/images:/outputs:ro \
+  -v iib-cache:/cache \
+  -v /path/to/my-favicon.svg:/app/custom/favicon.svg:ro \
+  ghcr.io/pbanddev/infinite-image-browser-docker:latest
+```
+
+### Docker Compose
+```yaml
+services:
+  iib:
+    image: ghcr.io/pbanddev/infinite-image-browser-docker:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /path/to/images:/outputs:ro
+      - iib-cache:/cache
+      - ./my-favicon.svg:/app/custom/favicon.svg:ro
+    restart: unless-stopped
+
+volumes:
+  iib-cache:
+```
+
 ## Migrating from Local Installation
 
 If you have an existing IIB database with likes/tags:

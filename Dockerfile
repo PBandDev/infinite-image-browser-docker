@@ -34,6 +34,10 @@ RUN chmod +x /usr/local/bin/entry.sh
 
 COPY config.json /config.json
 
+# Copy default favicon (can be overridden by mounting /app/custom/favicon.svg)
+COPY favicon.svg /app/default-favicon.svg
+RUN mkdir -p /app/custom
+
 EXPOSE 8080
 
 ENTRYPOINT ["/usr/local/bin/entry.sh"]
