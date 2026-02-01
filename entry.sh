@@ -22,12 +22,15 @@ install_favicon() {
         cp "$FAVICON_SRC" "$VUE_DIST/favicon.svg"
         echo "Favicon installed to $VUE_DIST/favicon.svg"
 
-        # Inject favicon link into index.html if not present
         if [ -f "$VUE_DIST/index.html" ]; then
-            if ! grep -q 'rel="icon"' "$VUE_DIST/index.html"; then
-                sed -i 's|<head>|<head><link rel="icon" type="image/svg+xml" href="/favicon.svg">|' "$VUE_DIST/index.html"
-                echo "Favicon link injected into index.html"
-            fi
+            # Remove the upstream's broken /favicon.ico link
+            sed -i '/<link rel="icon" href="\/favicon.ico"/d' "$VUE_DIST/index.html"
+
+            # Inject SVG favicon with the correct fe-static path
+            # Uses /infinite_image_browsing/ prefix so the upstream's
+            # base-path replacement (--base flag) works automatically
+            sed -i 's|<head>|<head><link rel="icon" type="image/svg+xml" href="/infinite_image_browsing/fe-static/favicon.svg">|' "$VUE_DIST/index.html"
+            echo "Favicon link injected into index.html"
         fi
     else
         echo "Warning: Vue dist folder not found at $VUE_DIST, favicon may not work"
