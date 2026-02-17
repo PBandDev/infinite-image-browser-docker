@@ -16,7 +16,7 @@ jobs:
       contents: read
       packages: write
     outputs:
-      built: ${{ steps.check.outputs.exists == 'false' }}
+      built: ${{ steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false' }}
 
     steps:
       - name: Set image name lowercase
@@ -25,12 +25,26 @@ jobs:
 
       - name: Get latest upstream release
         id: upstream
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST=$(curl -s https://api.github.com/repos/${{ env.UPSTREAM_REPO }}/releases/latest | jq -r .tag_name)
+          LATEST=$(gh api repos/${{ env.UPSTREAM_REPO }}/releases/latest --jq .tag_name)
           echo "version=$LATEST" >> $GITHUB_OUTPUT
           echo "Latest upstream release: $LATEST"
 
+      - name: Validate upstream version
+        id: validate
+        run: |
+          VERSION="${{ steps.upstream.outputs.version }}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "::warning::No valid upstream release found, skipping build"
+          else
+            echo "valid=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check if tag exists in registry
+        if: steps.validate.outputs.valid == 'true'
         id: check
         run: |
           TAG="${{ steps.upstream.outputs.version }}"
@@ -43,21 +57,21 @@ jobs:
           fi
 
       - name: Checkout repository
-        if: steps.check.outputs.exists == 'false'
+        if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
         uses: actions/checkout@v4
 
       - name: Update Dockerfile for specific version
-        if: steps.check.outputs.exists == 'false'
+        if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
         run: |
           TAG="${{ steps.upstream.outputs.version }}"
           sed -i "s|git clone --depth 1|git clone --depth 1 --branch $TAG|" Dockerfile
 
       - name: Set up Docker Buildx
-        if: steps.check.outputs.exists == 'false'
+        if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Container Registry
-        if: steps.check.outputs.exists == 'false'
+        if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -65,7 +79,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        if: steps.check.outputs.exists == 'false'
+        if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
         uses: docker/build-push-action@v5
         with:
           context: .
