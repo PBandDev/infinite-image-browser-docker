@@ -1,0 +1,11 @@
+.git
+.github
+.tmp-upstream
+.tmp-upstream-task3
+.changeset
+docs
+images
+data
+node_modules
+__pycache__
+*.log
