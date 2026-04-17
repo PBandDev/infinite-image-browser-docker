@@ -28,6 +28,8 @@ docker pull ghcr.io/pbanddev/infinite-image-browser-docker:v1.2.3
 
 ## Docker Compose
 
+Use the root compose file to run the published GHCR image:
+
 ```yaml
 services:
   iib:
@@ -41,6 +43,12 @@ services:
 
 volumes:
   iib-cache:
+```
+
+Start it with:
+
+```bash
+docker compose up -d
 ```
 
 ## Environment Variables
@@ -134,7 +142,7 @@ If you have an existing IIB database with likes/tags:
 ```bash
 git clone https://github.com/PBandDev/infinite-image-browser-docker
 cd infinite-image-browser-docker
-docker compose up --build
+docker compose -f compose.dev.yaml up --build
 ```
 
 ## Verification

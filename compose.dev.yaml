@@ -1,12 +1,17 @@
 services:
   iib:
-    image: ghcr.io/pbanddev/infinite-image-browser-docker:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: infinite-image-browser
     ports:
       - "8080:8080"
     volumes:
       - ./images:/outputs:ro
       - iib-cache:/cache
+    environment:
+      - PORT=8080
+      - EXTRA_PATHS=/outputs
     restart: unless-stopped
 
 volumes:
