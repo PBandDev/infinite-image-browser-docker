@@ -137,6 +137,20 @@ cd infinite-image-browser-docker
 docker compose up --build
 ```
 
+## Verification
+
+Check that the runtime metadata, source tree, and embedded frontend assets stay in sync:
+
+The shell verifier expects `docker`, `curl`, and `python3` or `python` on the host.
+
+```bash
+./scripts/runtime/verify-image.sh ghcr.io/pbanddev/infinite-image-browser-docker:latest
+```
+
+```powershell
+.\scripts\windows\verify-image.ps1 -ImageRef ghcr.io/pbanddev/infinite-image-browser-docker:latest
+```
+
 ## License
 
 AGPL-3.0
