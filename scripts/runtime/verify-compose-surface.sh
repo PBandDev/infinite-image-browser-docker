@@ -8,4 +8,7 @@ docker compose config >"$PUBLIC_CONFIG"
 docker compose -f compose.dev.yaml config >"$DEV_CONFIG"
 
 grep -q 'image: ghcr.io/pbanddev/infinite-image-browser-docker:latest' "$PUBLIC_CONFIG"
+! grep -q 'build:' "$PUBLIC_CONFIG"
+
 grep -q 'build:' "$DEV_CONFIG"
+! grep -q 'image: ghcr.io/pbanddev/infinite-image-browser-docker:latest' "$DEV_CONFIG"
