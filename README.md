@@ -16,15 +16,28 @@ Open http://localhost:8080
 
 ## Image Tags
 
-| Tag | Description | Update Frequency |
-|-----|-------------|------------------|
-| `latest` | Follows upstream `main` branch | Weekly (Sundays) |
-| `vX.X.X` | Pinned to upstream release version | On new release |
+`latest` is built from upstream `main`, and the frontend assets are rebuilt from that checkout before the image is published.
+
+`vX.Y.Z` is built from the matching upstream tag, and the frontend assets are rebuilt from that tagged checkout before the image is published.
 
 Use a version tag for stability:
 ```bash
 docker pull ghcr.io/pbanddev/infinite-image-browser-docker:v1.2.3
 ```
+
+## Maintainer Notes
+
+This repo does not trust upstream checked-in `vue/dist` assets for release metadata. The Docker build rebuilds the frontend from the authoritative upstream source checkout so the served UI version stays aligned with the checked-out commit or tag.
+
+## Troubleshooting
+
+If the image date and the app version look different, check the running container directly:
+
+```bash
+docker exec infinite-image-browser sh -lc 'curl -fsS http://127.0.0.1:8080/infinite_image_browsing/version'
+```
+
+`hash` and `tag` are the source of truth for the running app, not the image build date.
 
 ## Docker Compose
 
