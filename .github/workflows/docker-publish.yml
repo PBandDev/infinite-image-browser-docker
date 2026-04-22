@@ -40,8 +40,17 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            IIB_REF=main
           tags: |
             ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           no-cache: ${{ github.event_name == 'schedule' }}
+
+      - name: Smoke test latest image
+        run: |
+          IMAGE_REF="${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:latest"
+          docker pull "$IMAGE_REF"
+          chmod +x scripts/runtime/verify-image.sh
+          bash -lc "./scripts/runtime/verify-image.sh $IMAGE_REF"

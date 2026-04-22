@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  UPSTREAM_REPO: zanllp/sd-webui-infinite-image-browsing
+  UPSTREAM_REPO: zanllp/infinite-image-browsing
 
 jobs:
   check-and-build:
@@ -60,12 +60,6 @@ jobs:
         if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
         uses: actions/checkout@v4
 
-      - name: Update Dockerfile for specific version
-        if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          TAG="${{ steps.upstream.outputs.version }}"
-          sed -i "s|git clone --depth 1|git clone --depth 1 --branch $TAG|" Dockerfile
-
       - name: Set up Docker Buildx
         if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
         uses: docker/setup-buildx-action@v3
@@ -84,10 +78,21 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            IIB_REF=${{ steps.upstream.outputs.version }}
           tags: |
             ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ steps.upstream.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Smoke test tagged image
+        if: steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false'
+        run: |
+          IMAGE_REF="${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ steps.upstream.outputs.version }}"
+          EXPECTED_TAG="${{ steps.upstream.outputs.version }}"
+          docker pull "$IMAGE_REF"
+          chmod +x scripts/runtime/verify-image.sh
+          bash -lc "./scripts/runtime/verify-image.sh $IMAGE_REF $EXPECTED_TAG"
 
   build-latest:
     needs: check-and-build
@@ -120,7 +125,16 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            IIB_REF=main
           tags: |
             ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Smoke test latest image
+        run: |
+          IMAGE_REF="${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:latest"
+          docker pull "$IMAGE_REF"
+          chmod +x scripts/runtime/verify-image.sh
+          bash -lc "./scripts/runtime/verify-image.sh $IMAGE_REF"

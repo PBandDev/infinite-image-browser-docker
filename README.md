@@ -16,17 +16,32 @@ Open http://localhost:8080
 
 ## Image Tags
 
-| Tag | Description | Update Frequency |
-|-----|-------------|------------------|
-| `latest` | Follows upstream `main` branch | Weekly (Sundays) |
-| `vX.X.X` | Pinned to upstream release version | On new release |
+`latest` is built from upstream `main`, and the frontend assets are rebuilt from that checkout before the image is published.
+
+`vX.Y.Z` is built from the matching upstream tag, and the frontend assets are rebuilt from that tagged checkout before the image is published.
 
 Use a version tag for stability:
 ```bash
 docker pull ghcr.io/pbanddev/infinite-image-browser-docker:v1.2.3
 ```
 
+## Maintainer Notes
+
+This repo does not trust upstream checked-in `vue/dist` assets for release metadata. The Docker build rebuilds the frontend from the authoritative upstream source checkout so the served UI version stays aligned with the checked-out commit or tag.
+
+## Troubleshooting
+
+If the image date and the app version look different, check the running container directly:
+
+```bash
+docker exec infinite-image-browser sh -lc 'curl -fsS http://127.0.0.1:8080/infinite_image_browsing/version'
+```
+
+`hash` and `tag` are the source of truth for the running app, not the image build date.
+
 ## Docker Compose
+
+Use the root compose file to run the published GHCR image:
 
 ```yaml
 services:
@@ -41,6 +56,12 @@ services:
 
 volumes:
   iib-cache:
+```
+
+Start it with:
+
+```bash
+docker compose up -d
 ```
 
 ## Environment Variables
@@ -134,7 +155,21 @@ If you have an existing IIB database with likes/tags:
 ```bash
 git clone https://github.com/PBandDev/infinite-image-browser-docker
 cd infinite-image-browser-docker
-docker compose up --build
+docker compose -f compose.dev.yaml up --build
+```
+
+## Verification
+
+Check that the runtime metadata, source tree, and embedded frontend assets stay in sync:
+
+The shell verifier expects `docker`, `curl`, and `python3` or `python` on the host.
+
+```bash
+./scripts/runtime/verify-image.sh ghcr.io/pbanddev/infinite-image-browser-docker:latest
+```
+
+```powershell
+.\scripts\windows\verify-image.ps1 -ImageRef ghcr.io/pbanddev/infinite-image-browser-docker:latest
 ```
 
 ## License

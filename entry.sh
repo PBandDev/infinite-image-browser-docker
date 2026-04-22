@@ -48,6 +48,12 @@ export IIB_ACCESS_CONTROL="${IIB_ACCESS_CONTROL:-enable}"
 export IIB_DB_FILE_BACKUP_MAX="${IIB_DB_FILE_BACKUP_MAX:-0}"
 
 echo "=== Infinite Image Browsing ==="
+if [ -f /app/.iib-commit ]; then
+    echo "UPSTREAM_COMMIT: $(cat /app/.iib-commit)"
+fi
+if [ -f /app/.iib-tag ] && [ -s /app/.iib-tag ]; then
+    echo "UPSTREAM_TAG: $(cat /app/.iib-tag)"
+fi
 echo "PORT: $PORT"
 echo "EXTRA_PATHS: $EXTRA_PATHS"
 echo "IIB_DB_PATH: $IIB_DB_PATH"
