@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  UPSTREAM_REPO: zanllp/sd-webui-infinite-image-browsing
+  UPSTREAM_REPO: zanllp/infinite-image-browsing
 
 jobs:
   check-and-build:
@@ -17,7 +17,6 @@ jobs:
       packages: write
     outputs:
       built: ${{ steps.validate.outputs.valid == 'true' && steps.check.outputs.exists == 'false' }}
-      version: ${{ steps.upstream.outputs.version }}
 
     steps:
       - name: Set image name lowercase
@@ -92,6 +91,7 @@ jobs:
           IMAGE_REF="${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ steps.upstream.outputs.version }}"
           EXPECTED_TAG="${{ steps.upstream.outputs.version }}"
           docker pull "$IMAGE_REF"
+          chmod +x scripts/runtime/verify-image.sh
           bash -lc "./scripts/runtime/verify-image.sh $IMAGE_REF $EXPECTED_TAG"
 
   build-latest:
@@ -126,7 +126,7 @@ jobs:
           context: .
           push: true
           build-args: |
-            IIB_REF=${{ needs.check-and-build.outputs.version }}
+            IIB_REF=main
           tags: |
             ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:latest
           cache-from: type=gha
@@ -136,4 +136,5 @@ jobs:
         run: |
           IMAGE_REF="${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:latest"
           docker pull "$IMAGE_REF"
+          chmod +x scripts/runtime/verify-image.sh
           bash -lc "./scripts/runtime/verify-image.sh $IMAGE_REF"
